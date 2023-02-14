@@ -9,6 +9,7 @@ const { notFound, errorHandler } = require('./middlewares/errorHandling');
 
 const authRouter = require('./routes/authRouter');
 const productRouter = require('./routes/productRouter');
+const blogRouter = require('./routes/blogRouter');
 
 const PORT = process.env.PORT || 3000;
 
@@ -23,6 +24,7 @@ app.use(cookieParser());
 
 app.use('/api/user', authRouter);
 app.use('/api/product', productRouter);
+app.use('/api/blog', blogRouter);
 
 app.use(notFound);
 app.use(errorHandler);

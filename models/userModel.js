@@ -56,5 +56,9 @@ userSchema.methods.ValidatePassword = async function(input_password){
     return await bcrypt.compare(input_password, this.password);
 };
 
+//TODO : Update and Reset password
+userSchema.methods.UpdatePassword = async function(input_password){
+};
+
 //Export the model
 module.exports = mongoose.model('User', userSchema); 
