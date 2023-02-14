@@ -38,7 +38,7 @@ const GetBlogs = asyncHandler(async (req, res) =>{
 const DeleteBlog = asyncHandler(async(req, res) => {
     try {
         const id = req.params.id;
-        const blogs = await Blog.findByIdAndDelete(id);
+        await Blog.findByIdAndDelete(id);
         res.sendStatus(204);
     } catch (error) {
         throw new Error(error);
