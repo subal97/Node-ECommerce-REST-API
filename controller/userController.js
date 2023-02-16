@@ -54,16 +54,13 @@ const GetAllUsers = async function(req, res, next){
     });
 };
 
-const GetUser = asyncHandler(async function(req, res, next){
-    let user;
+const GetUser = asyncHandler(async function(req, res){
     try {
-        user = await User.findOne({_id: req.params.id});
+        const user = await User.findById(req.params.id);
+        res.json({user});
     } catch (error) {
         throw new Error(error);
     }
-    res.status(200).json({
-        user: user
-    });
 });
 
 const BlockUser = asyncHandler(async function(req, res, next){
