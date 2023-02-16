@@ -2,6 +2,9 @@ const Product = require('../models/productModel');
 const User = require('../models/userModel');
 const asyncHandler = require('express-async-handler');
 const slugify = require('slugify');
+const cloudinaryImageUploader = require('../utils/cloudinary');
+const fs = require('fs');
+const path = require('path');
 
 const CreateProduct = asyncHandler(async (req, res) => {
     let product;
@@ -108,8 +111,30 @@ const AddToWishlist = asyncHandler(async(req, res)=>{
     }
 });
 
+const UploadImages = asyncHandler(async(req, res)=>{
+    const prodId = req.params.id;
+    try {
+        const cloudUploader = path => cloudinaryImageUploader(path);
+        const files = req.files;
+        const cloudUrls = [];
+        for(let file of files){
+            const fpath = path.join(file.destination, '/products/', file.filename);
+            const cloudUrl = await cloudUploader(fpath);
+            cloudUrls.push(cloudUrl);
+            fs.unlinkSync(fpath);
+        }
+        const product = await Product.findByIdAndUpdate(prodId, {
+            images: cloudUrls
+        });
+        res.send({product});
+    } catch (error) {
+        throw new Error(error);
+    }
+});
+
 
 module.exports = {
     GetAllProducts,GetProduct,
-    CreateProduct,UpdateProduct,DeleteProduct,AddToWishlist
+    CreateProduct,UpdateProduct,DeleteProduct,AddToWishlist,
+    UploadImages
 }

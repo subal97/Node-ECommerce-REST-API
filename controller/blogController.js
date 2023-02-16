@@ -1,6 +1,9 @@
 const Blog = require('../models/blogModel')
 const User = require('../models/userModel')
 const asyncHandler = require('express-async-handler')
+const cloudinaryImageUploader = require('../utils/cloudinary');
+const fs = require('fs');
+const path = require('path');
 
 const GetBlog = asyncHandler(async(req, res) => {
     try {
@@ -116,9 +119,31 @@ const DislikeBlog = asyncHandler(async(req, res) =>{
     }
 });
 
+const UploadImages = asyncHandler(async(req, res)=>{
+    const blogId = req.params.id;
+    try {
+        const cloudUploader = path => cloudinaryImageUploader(path);
+        const files = req.files;
+        const cloudUrls = [];
+        for(let file of files){
+            const fpath = path.join(file.destination, '/blogs/', file.filename);
+            const cloudUrl = await cloudUploader(fpath);
+            cloudUrls.push(cloudUrl);
+            fs.unlinkSync(fpath);
+        }
+        const blog = await Blog.findByIdAndUpdate(blogId, {
+            images: cloudUrls
+        });
+        res.send({blog});
+    } catch (error) {
+        throw new Error(error);
+    }
+});
+
 module.exports = {
     GetBlog, GetBlogs, 
     CreateBlog, DeleteBlog,
     UpdateBlog,
-    LikeBlog, DislikeBlog
+    LikeBlog, DislikeBlog,
+    UploadImages
 }
