@@ -94,23 +94,6 @@ const DeleteProduct = asyncHandler(async (req, res) => {
     }
 });
 
-const AddToWishlist = asyncHandler(async(req, res)=>{
-    const prodId = req.body?._id;
-    let user = req.user;
-    try {
-        const index = user.wishlist.indexOf(prodId);
-        if(index > -1){
-            user.wishlist.splice(index,1);
-        }else{
-            user.wishlist.push(prodId);
-        }
-        user = await user.save();
-        res.send({"wishlist": user.wishlist});
-    } catch (error) {
-        throw new Error(error);
-    }
-});
-
 const UploadImages = asyncHandler(async(req, res)=>{
     const prodId = req.params.id;
     try {
@@ -135,6 +118,6 @@ const UploadImages = asyncHandler(async(req, res)=>{
 
 module.exports = {
     GetAllProducts,GetProduct,
-    CreateProduct,UpdateProduct,DeleteProduct,AddToWishlist,
+    CreateProduct,UpdateProduct,DeleteProduct,
     UploadImages
 }

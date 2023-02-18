@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const Cart = require('../models/cartModel');
 const asyncHandler = require('express-async-handler');
 const { createJWT, createRefreshToken} = require('../config/jwtService');
 const jwt = require('jsonwebtoken');
@@ -114,9 +115,76 @@ const LogoutUser = asyncHandler(async function(req, res){
     res.sendStatus(204);
 });
 
+const GetWishlist = asyncHandler(async(req, res)=>{
+    try {
+        const user = req.user;
+        await user.populate('wishlist');
+        const wishlist = user.wishlist;
+        res.send({
+            count: wishlist.length,
+            wishlist: wishlist
+        });
+    } catch (error) {
+        throw new Error(error);
+    }
+});
+
+//takes care of removing from wishlist as well.
+const AddToWishlist = asyncHandler(async(req, res)=>{
+    const prodId = req.body?._id;
+    let user = req.user;
+    try {
+        const index = user.wishlist.indexOf(prodId);
+        if(index > -1){
+            user.wishlist.splice(index,1);
+        }else{
+            user.wishlist.push(prodId);
+        }
+        user = await user.save();
+        res.send({"wishlist": user.wishlist});
+    } catch (error) {
+        throw new Error(error);
+    }
+});
+
+const SaveAddress = asyncHandler(async(req, res)=>{
+    const userid = req.user?._id;
+    try {
+        const user = await User.findByIdAndUpdate(userid, {address: req.body.address}, {new: true} );
+        res.send(user.address);
+    } catch (error) {
+        throw new Error(error);
+    }
+});
+
+const GetCart = asyncHandler(async(req, res)=>{
+    const userid = req.user?._id;
+    try {
+        const cart = await Cart.findById(userid);
+        res.send({cart});
+    } catch (error) {
+        throw new Error(error);
+    }
+});
+
+//TODO
+const AddRemoveCartItem = asyncHandler(async(req, res, next)=>{
+    const userid = req.user?._id;
+    try {
+        const cart = await Cart.findById(userid);
+        res.send({cart});
+    } catch (error) {
+        throw new Error(error);
+    }
+});
+
+
 module.exports = {
-    RegisterUser,LoginUser,
+    RegisterUser,LoginUser,LogoutUser,
+    HandleTokenRefresh,
     GetAllUsers, GetUser,
     BlockUser,UnBlockUser,
-    HandleTokenRefresh,LogoutUser
+    GetWishlist,AddToWishlist,
+    SaveAddress,
+    GetCart, AddRemoveCartItem,
 };
